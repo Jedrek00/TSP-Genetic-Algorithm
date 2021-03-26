@@ -53,6 +53,7 @@ def choose_file(dir_path=None):
             return generator()
 
         elif answer in dir_txts:
+            print('xd')
             return dir_path + '\\' + answer
 
         else:

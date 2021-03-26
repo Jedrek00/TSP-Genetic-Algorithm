@@ -1,8 +1,18 @@
 import random
 import time
 
+"""
+route: list of vertices in order which they be visited
+"""
+
 
 def calculate_fitness_of_generation(generation, matrix):
+    """
+    Calculate fitness of each route
+    :param generation: list of routes
+    :param matrix: matrix with distances between each vertices
+    :return: list of route's length (float)
+    """
     result = []
     for route in generation:
         distance = 0
@@ -15,8 +25,13 @@ def calculate_fitness_of_generation(generation, matrix):
 
 
 def find_shortest_route(generation, matrix):
+    """
+    Find the shortest route of a generation
+    :param generation: list of routes
+    :param matrix: matrix with distances between each vertices
+    :return: distance of shortest route (float) and shortest route (list of ints)
+    """
     routes = calculate_fitness_of_generation(generation, matrix)
-
     return min(routes), generation[routes.index(min(routes))]
 
 
@@ -44,6 +59,14 @@ def greedy(matrix, starting_index):
 
 
 def tournament(generation, matrix, parents_for_next_generation):
+    """
+     In tournament selection, n individuals are selected randomly from the larger
+    population, and the selected individuals compete against each other.
+    :param generation: list of routes
+    :param matrix: matrix with distances between each vertices
+    :param parents_for_next_generation: number of parents (int)
+    :return: list of new routes
+    """
     distances = calculate_fitness_of_generation(generation, matrix)
     generation_with_distance = list(zip(generation, distances))
 
@@ -60,6 +83,13 @@ def tournament(generation, matrix, parents_for_next_generation):
 
 
 def choose_the_best(generation, matrix, parents_for_next_generation):
+    """
+    Choose the chromosomes with the best fitness value
+    :param generation: list of routes
+    :param matrix: matrix with distances between each vertices
+    :param parents_for_next_generation: number of parents (int)
+    :return: list of new routes
+    """
     distances = calculate_fitness_of_generation(generation, matrix)
     generation_with_distance = zip(distances, generation)
 
@@ -68,11 +98,16 @@ def choose_the_best(generation, matrix, parents_for_next_generation):
     return result[:parents_for_next_generation]
 
 
-def create_ranks(length, sp):
+def create_ranks(length):
+    """
+    Create ranks used in rank-based roulette wheel selection
+    :param length: number of vertices (int)
+    :return: list of ranks and max rank
+    """
     ranks = []
     counter = 0
     for pos in range(length):
-        rank = (2 - (2 * (sp - 1) * pos / (length - 1))) * 2
+        rank = (2 - (2 * pos / (length - 1))) * 2
         ranks.append((round(counter, 2), round(counter + rank, 2)))
         counter += rank
 
@@ -80,6 +115,16 @@ def create_ranks(length, sp):
 
 
 def rank_based_wheel_selection(generation, matrix, ranks, max_rank, parents_for_next_generation):
+    """
+    Rank-based roulette wheel selection is the selection strategy where the probability of a chromosome being
+    selected is based on its fitness rank relative to the entire population.
+    :param generation: list of routes
+    :param matrix: matrix with distances between each vertices
+    :param ranks: list of ranks used to calculate probability
+    :param max_rank: highest rank
+    :param parents_for_next_generation: number of parents (int)
+    :return: list of new routes
+    """
     distances = calculate_fitness_of_generation(generation, matrix)
     generation_with_distance = sorted(list(zip(generation, distances)), key=lambda pair: pair[1])
     new_generation = []
@@ -99,6 +144,13 @@ def rank_based_wheel_selection(generation, matrix, ranks, max_rank, parents_for_
 
 
 def pmx(parent1, parent2):
+    """
+    Create two new routes from given routes using pmx operator
+    https://www.hindawi.com/journals/cin/2017/7430125/
+    :param parent1: route
+    :param parent2:  route
+    :return: two routes
+    """
     length = len(parent1)
     point1 = random.randint(0, length - 2)
     point2 = random.randint(point1, length - 1)
@@ -121,6 +173,13 @@ def pmx(parent1, parent2):
 
 
 def ox(parent1, parent2):
+    """
+    Create two new routes from given routes using ox operator
+    https://www.hindawi.com/journals/cin/2017/7430125/
+    :param parent1: route
+    :param parent2:  route
+    :return: two routes
+    """
     length = len(parent1)
     point1 = random.randint(0, length - 2)
     point2 = random.randint(point1, length - 1)
@@ -142,6 +201,12 @@ def ox(parent1, parent2):
 
 
 def simple_mutation(generation, chance_for_mutation):
+    """
+    This mutation swaps two random vertices with each other
+    :param generation: list of routes
+    :param chance_for_mutation: probability that mutation will be done (int)
+    :return: list of changed routes
+    """
     for route in generation:
 
         if random.randint(1, 100) <= chance_for_mutation:
@@ -153,6 +218,12 @@ def simple_mutation(generation, chance_for_mutation):
 
 
 def inversion_mutation(generation, chance_for_mutation):
+    """
+    This mutation turnes upside down selected part of route
+    :param generation: list of routes
+    :param chance_for_mutation: probability that mutation will be done (int)
+    :return: list of changed routes
+    """
     for route in generation:
 
         if random.randint(1, 100) <= chance_for_mutation:
@@ -167,6 +238,12 @@ def inversion_mutation(generation, chance_for_mutation):
 
 
 def create_first_generation(matrix, size_of_generation):
+    """
+    Create first generation, some of them will be created with greedy algorithm
+    :param matrix: matrix with distances between each vertices
+    :param size_of_generation: number of vertices
+    :return: list of routes
+    """
     generation = []
     cities = [x for x in range(len(matrix))]
 
@@ -182,24 +259,36 @@ def create_first_generation(matrix, size_of_generation):
     return generation
 
 
-def check_generation(matrix, generation, last_distance, generation_without_change):
-    shortest_distance, shortest_route = find_shortest_route(generation, matrix)
-
-    if abs(last_distance - shortest_distance) < shortest_distance * 0.001:
-        generation_without_change += 1
-    else:
-        generation_without_change = 0
-
-    chance_for_mutation = float(min(10.0, 2.0 + float(generation_without_change) / 100))
-
-    return generation_without_change, chance_for_mutation, shortest_route, shortest_distance
+# def check_generation(matrix, generation, last_distance, generation_without_change):
+#     shortest_distance, shortest_route = find_shortest_route(generation, matrix)
+#
+#     if abs(last_distance - shortest_distance) < shortest_distance * 0.001:
+#         generation_without_change += 1
+#     else:
+#         generation_without_change = 0
+#
+#     chance_for_mutation = float(min(10.0, 2.0 + float(generation_without_change) / 100))
+#
+#     return generation_without_change, chance_for_mutation, shortest_route, shortest_distance
 
 
 # B
 
 
-def selection(matrix, generation, shortest_route, parents_for_next_generation, ranks, max_rank):
+def selection(matrix, generation, parents_for_next_generation, ranks, max_rank):
+    """
+    Choose parents for crossover using one of selection algorithms
+    Shortest route never will be removed
+    :param matrix: matrix with distances between each vertices
+    :param generation: list of routes
+    :param parents_for_next_generation: number of routes to select
+    :param ranks: list of ranks, used in rank_based_wheel_selection()
+    :param max_rank: highest rank, used in rank_based_wheel_selection()
+    :return: list of routes which will be used in crossover
+    """
 
+    shortest_distance, shortest_route = find_shortest_route(generation, matrix)
+    print(f"Route's length: {shortest_distance}")
     generation.remove(shortest_route)
 
     # generation = tournament(generation, matrix, parents_for_next_generation)
@@ -212,6 +301,11 @@ def selection(matrix, generation, shortest_route, parents_for_next_generation, r
 
 
 def crossover(generation):
+    """
+    Creates new routes from given generation
+    :param generation: list of routes
+    :return: new list of routes
+    """
     available_parents = [x for x in range(0, len(generation))]
 
     while available_parents:
@@ -235,6 +329,12 @@ def crossover(generation):
 
 
 def mutation(generation, chance_for_mutation):
+    """
+    Change some of routes
+    :param generation: list of routes
+    :param chance_for_mutation: probability to change single route (int)
+    :return: changed list of routes
+    """
     generation = inversion_mutation(generation, chance_for_mutation)
     # generation = simple_mutation(generation, chance_for_mutation)
 
@@ -242,131 +342,36 @@ def mutation(generation, chance_for_mutation):
 
 
 def genetic_algorithm(matrix):
+    """
+    Function with main loop where generation is modified by selection, crossover and mutation
+    :param matrix: matrix with distances between each vertices
+    :return: None
+    """
     # GA parameters
     size_of_generation = 200
     parents_for_next_generation = int(size_of_generation * 0.5)
     number_of_generation = 0
     shortest_distance = 0
-    generation_without_change = 0
-    ranks, max_rank = create_ranks(size_of_generation, 2)
+    ranks, max_rank = create_ranks(size_of_generation)
 
     start_time = time.time()
 
     generation = create_first_generation(matrix, size_of_generation)
 
     while True:
-
-        generation_without_change, chance_for_mutation, shortest_route, shortest_distance = check_generation(matrix,
-                                                                                                             generation,
-                                                                                                             shortest_distance,
-                                                                                                             generation_without_change)
-
-        generation = selection(matrix, generation, shortest_route, parents_for_next_generation, ranks, max_rank)
+        generation = selection(matrix, generation, parents_for_next_generation, ranks, max_rank)
         generation = crossover(generation)
-        generation = mutation(generation, chance_for_mutation)
+        generation = mutation(generation, 7)
         number_of_generation += 1
 
-        print(f"Route's length: {shortest_distance}")
-
-        if time.time() - start_time >= 120:
+        if time.time() - start_time >= 5:
+            shortest_distance, shortest_route = find_shortest_route(generation, matrix)
             print(f'\n\nShortest distance: {shortest_distance}\nRoute:')
             for city in shortest_route:
                 print(city + 1, end='->')
             print(shortest_route[0] + 1)
             break
 
-
-# def main():
-#
-#     global chance_for_mutation
-#     global size_of_generation
-#     global parents_for_next_generation
-#
-#     # for size in range(15):
-#     #     print((size + 1) * 20)
-#     #     size_of_generation += 20
-#     #     parents_for_next_generation = int(size_of_generation * 0.5)
-#     #
-#     #     createdata.generator(size_of_generation)
-#     #     matrix = createdata.create_matrix('generator.txt')
-#     #
-#     #     greedy_route = greedy(matrix, 0)
-#     #     print(f'Greedy: {calculate_fitness_of_generation([greedy_route], matrix)[0]}')
-#
-#     for attempt in range(5):
-#
-#         start_time = time.time()
-#
-#         cities = [x for x in range(len(matrix))]
-#         ranks, max_rank = create_ranks(size_of_generation, 2)
-#         # print(ranks)
-#         generation = []
-#         i = 0
-#         generation_without_change = 0
-#         last_distance = 0
-#
-#         while len(generation) < size_of_generation:
-#             chance = random.randint(1, 100)
-#             if chance <= 100:
-#                 route = random.sample(cities, len(cities))
-#             else:
-#                 route = greedy(matrix, random.randint(0, len(cities) - 1))
-#             if route not in generation:
-#                 generation.append(route)
-#
-#         while True:
-#
-#             # random.shuffle(generation)
-#
-#             tmp_distance, tmp_route = find_shortest_route(generation, matrix)
-#
-#             if abs(last_distance - tmp_distance) < tmp_distance * 0.001:
-#                 generation_without_change += 1
-#             else:
-#                 generation_without_change = 0
-#
-#             chance_for_mutation = float(min(10.0, 2.0 + float(generation_without_change) / 100))
-#
-#             print(f'{i + 1} :  {tmp_distance}, {tmp_route}')
-#             last_distance = tmp_distance
-#             i += 1
-#
-#             generation.remove(tmp_route)
-#
-#             generation = tournament(generation, matrix)
-#             # generation = rank_based_wheel_selection(generation, matrix, ranks, max_rank)
-#             # generation = choose_the_best(generation, matrix)
-#
-#             generation.append(tmp_route)
-#
-#             available_parents = [x for x in range(0, len(generation))]
-#
-#             while available_parents:
-#
-#                 parent1_index = random.choice(available_parents)
-#                 available_parents.remove(parent1_index)
-#
-#                 parent2_index = random.choice(available_parents)
-#                 available_parents.remove(parent2_index)
-#
-#                 chance = random.randint(1, 10)
-#                 if chance <= 10:
-#                     tmp1, tmp2 = ox(generation[parent1_index], generation[parent2_index])
-#                 else:
-#                     tmp1, tmp2 = pmx(generation[parent1_index], generation[parent2_index])
-#
-#                 generation.append(tmp1)
-#                 generation.append(tmp2)
-#
-#             generation = inversion_mutation(generation)
-#             generation = simple_mutation(generation)
-#
-#             if time.time() - start_time >= 120:
-#                 # print(time.time() - start_time)
-#                 break
-#         print(f'GA: {tmp_distance}')
-#     print('END')
-#
 
 if __name__ == '__main__':
     # genetic_algorithm()
