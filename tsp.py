@@ -219,7 +219,7 @@ def simple_mutation(generation, chance_for_mutation):
 
 def inversion_mutation(generation, chance_for_mutation):
     """
-    This mutation turnes upside down selected part of route
+    This mutation turns upside down selected part of route
     :param generation: list of routes
     :param chance_for_mutation: probability that mutation will be done (int)
     :return: list of changed routes
@@ -235,8 +235,6 @@ def inversion_mutation(generation, chance_for_mutation):
 
 
 # GENETIC ALGORITHM STAGES
-
-
 def create_first_generation(matrix, size_of_generation):
     """
     Create first generation, some of them will be created with greedy algorithm
@@ -259,22 +257,6 @@ def create_first_generation(matrix, size_of_generation):
     return generation
 
 
-# def check_generation(matrix, generation, last_distance, generation_without_change):
-#     shortest_distance, shortest_route = find_shortest_route(generation, matrix)
-#
-#     if abs(last_distance - shortest_distance) < shortest_distance * 0.001:
-#         generation_without_change += 1
-#     else:
-#         generation_without_change = 0
-#
-#     chance_for_mutation = float(min(10.0, 2.0 + float(generation_without_change) / 100))
-#
-#     return generation_without_change, chance_for_mutation, shortest_route, shortest_distance
-
-
-# B
-
-
 def selection(matrix, generation, parents_for_next_generation, ranks, max_rank):
     """
     Choose parents for crossover using one of selection algorithms
@@ -288,7 +270,7 @@ def selection(matrix, generation, parents_for_next_generation, ranks, max_rank):
     """
 
     shortest_distance, shortest_route = find_shortest_route(generation, matrix)
-    print(f"Route's length: {shortest_distance}")
+    print(f"Route's length: {shortest_distance}, {shortest_route}")
     generation.remove(shortest_route)
 
     # generation = tournament(generation, matrix, parents_for_next_generation)
@@ -351,7 +333,6 @@ def genetic_algorithm(matrix):
     size_of_generation = 200
     parents_for_next_generation = int(size_of_generation * 0.5)
     number_of_generation = 0
-    shortest_distance = 0
     ranks, max_rank = create_ranks(size_of_generation)
 
     start_time = time.time()
@@ -374,5 +355,4 @@ def genetic_algorithm(matrix):
 
 
 if __name__ == '__main__':
-    # genetic_algorithm()
-    print(create_ranks(50, 2))
+    pass
