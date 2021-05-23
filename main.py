@@ -9,14 +9,13 @@ WIDTH = 900
 HEIGHT = 600
 
 
-def create_list(name):
+def create_list(file_path):
     """
     create a list from file
     :param name: name of file (String)
     :return: list of tuples with int values
     """
     coordinates = []
-    file_path = ''.join((os.getcwd(), '\\instances\\', name))
     with open(file_path) as source_file:
         content = source_file.read().splitlines()
         number_of_elements = int(content.pop(0))
@@ -45,15 +44,15 @@ def refactor_lis(coordinates, m_x, m_y):
     :param m_y: the biggest y value
     :return: refactored list
     """
-    coordinates = [(int(x * ((WIDTH - 100) / m_x) + 20), int(y * ((HEIGHT - 100) / m_y) + 20)) for x, y in coordinates]
+    coordinates = [(int(x * ((WIDTH - 100) / m_x) + 20), int(y * ((HEIGHT - 150) / m_y) + 80)) for x, y in coordinates]
     return coordinates
 
 
 def main():
 
     while True:
-        # file = createdata.choose_file(os.getcwd() + '\\instances')
-        file = ''.join((os.getcwd(), '\\instances\\bier127.txt'))
+        file = createdata.choose_file(os.getcwd() + '\\instances')
+        # file = ''.join((os.getcwd(), '\\instances\\bier127.txt'))
         if createdata.check_file(file):
             matrix = createdata.create_matrix(file)
             break
@@ -67,11 +66,11 @@ def main():
     run = True
     win = pygame.display.set_mode((WIDTH, HEIGHT))
     colour = (127, 0, 127)
-    start_time = time.time()
+    # start_time = time.time()
 
     genetic = ga.GA(matrix)
     genetic.create_first_generation()
-    elements = create_list('bier127.txt')
+    elements = create_list(file)
     max_x, max_y = calculate_scale(elements)
     elements = refactor_lis(elements, max_x, max_y)
     while run:
