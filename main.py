@@ -45,7 +45,7 @@ def refactor_lis(coordinates, m_x, m_y):
     :param m_y: the biggest y value
     :return: refactored list
     """
-    coordinates = [(int(x * ((WIDTH - 10) / m_x)), int(y * ((HEIGHT - 10) / m_y))) for x, y in coordinates]
+    coordinates = [(int(x * ((WIDTH - 100) / m_x) + 20), int(y * ((HEIGHT - 100) / m_y) + 20)) for x, y in coordinates]
     return coordinates
 
 
@@ -53,7 +53,7 @@ def main():
 
     while True:
         # file = createdata.choose_file(os.getcwd() + '\\instances')
-        file = ''.join((os.getcwd(), '\\instances\\berlin52.txt'))
+        file = ''.join((os.getcwd(), '\\instances\\bier127.txt'))
         if createdata.check_file(file):
             matrix = createdata.create_matrix(file)
             break
@@ -63,13 +63,15 @@ def main():
     pygame.init()
     pygame.display.set_caption("TSP Genetic Algorithm")
     clock = pygame.time.Clock()
+    font = pygame.font.SysFont('Calibri', 25)
     run = True
     win = pygame.display.set_mode((WIDTH, HEIGHT))
+    colour = (127, 0, 127)
     start_time = time.time()
 
     genetic = ga.GA(matrix)
     genetic.create_first_generation()
-    elements = create_list('berlin52.txt')
+    elements = create_list('bier127.txt')
     max_x, max_y = calculate_scale(elements)
     elements = refactor_lis(elements, max_x, max_y)
     while run:
@@ -79,12 +81,23 @@ def main():
         for click in pygame.event.get():
             if click.type == pygame.QUIT:
                 run = False
+
+        # draw points on the surface
         for x, y in elements:
-            pygame.draw.circle(win, (127, 0, 127), (x, y), 5)
+            pygame.draw.circle(win, colour, (x, y), 5)
+
+        # get and draw the currently shortest route
         route = genetic.run()
         for i in range(len(route)):
-            pygame.draw.line(win, (127, 0, 127), (elements[route[i]][0], elements[route[i]][1]),
+            pygame.draw.line(win, colour, (elements[route[i]][0], elements[route[i]][1]),
                              (elements[route[(i+1) % (len(route))]][0], elements[route[(i+1) % (len(route))]][1]))
+
+        # print information about algorithm results
+        num_gen_txt = font.render('Number of generation: ' + str(genetic.number_of_generation), False, colour)
+        route_len_txt = font.render('Length of the shortest route: ' + str(genetic.shortest_distance), False, colour)
+        win.blit(num_gen_txt, (0, 0))
+        win.blit(route_len_txt, (0, 30))
+
         pygame.display.update()
     pygame.quit()
 
