@@ -133,7 +133,7 @@ class GA:
         """
 
         self.__find_shortest_route()
-        print(f"Route's length: {self.shortest_distance}")
+        # print(f"Route's length: {self.shortest_distance}")
 
         self.generation.remove(self.shortest_route)
         # self.tournament()
