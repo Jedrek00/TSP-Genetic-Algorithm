@@ -6,7 +6,7 @@ import random
 
 def generator():
 
-    file = open("generator.txt", 'w')
+    file = open("instances\\generator.txt", 'w')
     while True:
         vertices = input('Type number of vertices: ')
         try:
